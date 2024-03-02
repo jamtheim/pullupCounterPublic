@@ -38,10 +38,9 @@ Special sounds are included for every 5 pullup up to 55 :)
 
 https://github.com/jamtheim/pullupCounterPublic/assets/46457468/bdb78075-1f39-453b-b565-0bc53173c0ef
 
+#![HomeAssistantScreen](https://github.com/jamtheim/pullupCounterPublic/assets/46457468/7fc7e76e-c9b3-4ea4-840b-2f82e943a6f8)
 
-![HomeAssistantScreen](https://github.com/jamtheim/pullupCounterPublic/assets/46457468/7fc7e76e-c9b3-4ea4-840b-2f82e943a6f8)
-
-
+<img src="[https://your-image-url.type](https://github.com/jamtheim/pullupCounterPublic/assets/46457468/7fc7e76e-c9b3-4ea4-840b-2f82e943a6f8)https://github.com/jamtheim/pullupCounterPublic/assets/46457468/7fc7e76e-c9b3-4ea4-840b-2f82e943a6f8" width="100" height="300">
 
 
 
