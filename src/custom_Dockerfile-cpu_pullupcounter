@@ -1,0 +1,74 @@
+# Ultralytics YOLO 🚀, AGPL-3.0 license
+# Builds ultralytics/ultralytics:latest-cpu image on DockerHub https://hub.docker.com/r/ultralytics/ultralytics
+# Image is CPU-optimized for ONNX, OpenVINO and PyTorch YOLOv8 deployments
+# Adaptions added by Christian Jamtheim Gustafsson 2023-2024
+
+# Start FROM Ubuntu image https://hub.docker.com/_/ubuntu
+FROM ubuntu:23.10
+
+# Install ping for debugging and network support
+RUN apt-get update -y
+RUN apt-get install -y iputils-ping
+
+# Downloads to user config dir
+ADD https://ultralytics.com/assets/Arial.ttf https://ultralytics.com/assets/Arial.Unicode.ttf /root/.config/Ultralytics/
+
+# Install linux packages
+# g++ required to build 'tflite_support' and 'lap' packages, libusb-1.0-0 required for 'tflite_support' package
+RUN apt update \
+    && apt install --no-install-recommends -y python3-pip git zip curl htop libgl1 libglib2.0-0 libpython3-dev gnupg g++ libusb-1.0-0
+
+# Create working directory
+WORKDIR /usr/src/ultralytics
+
+# Create dir 
+RUN mkdir /usr/src/app
+
+# Copy contents
+# COPY . /usr/src/ultralytics  # git permission issues inside container
+RUN git clone https://github.com/ultralytics/ultralytics -b main /usr/src/ultralytics
+#ADD https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8n.pt /usr/src/ultralytics/
+ADD https://github.com/ultralytics/assets/releases/download/v8.1.0/yolov8n.pt /usr/src/ultralytics/
+ADD https://github.com/ultralytics/assets/releases/download/v8.1.0/yolov8s.pt /usr/src/ultralytics/
+# Get a copy of the yolov8n and yolov8s pose models in the app folder. This avoids downloading it every time the container is started.
+ADD https://github.com/ultralytics/assets/releases/download/v8.1.0/yolov8n-pose.pt /usr/src/app
+ADD https://github.com/ultralytics/assets/releases/download/v8.1.0/yolov8s-pose.pt /usr/src/app
+ADD https://github.com/ultralytics/assets/releases/download/v8.1.0/yolov8n.pt /usr/src/app
+ADD https://github.com/ultralytics/assets/releases/download/v8.1.0/yolov8s.pt /usr/src/app
+
+# Remove python3.11/EXTERNALLY-MANAGED or use 'pip install --break-system-packages' avoid 'externally-managed-environment' Ubuntu nightly error
+RUN rm -rf /usr/lib/python3.11/EXTERNALLY-MANAGED
+
+# Install pip packages
+RUN python3 -m pip install --upgrade pip wheel
+RUN pip install --no-cache -e ".[export]" --extra-index-url https://download.pytorch.org/whl/cpu
+
+# Run exports to AutoInstall packages
+RUN yolo export model=tmp/yolov8n.pt format=edgetpu imgsz=32
+RUN yolo export model=tmp/yolov8n.pt format=ncnn imgsz=32
+# Requires <= Python 3.10, bug with paddlepaddle==2.5.0 https://github.com/PaddlePaddle/X2Paddle/issues/991
+# RUN pip install --no-cache paddlepaddle==2.4.2 x2paddle
+# Remove exported models
+RUN rm -rf tmp
+
+# Creates a symbolic link to make 'python' point to 'python3'
+RUN ln -sf /usr/bin/python3 /usr/bin/python
+# Install the ultralytics python package
+RUN pip install ultralytics
+# Install the chime and Sonos python package
+RUN pip install chime
+RUN pip install soco
+
+# Copy custom python scripts and stream password URL file 
+COPY pullupCounter.py /usr/src/app
+COPY commonConfig.py /usr/src/app
+COPY supportMethods.py /usr/src/app
+COPY streamWithPassword.url /usr/src/app
+# Copy the sounds folder
+COPY sounds /usr/src/app/sounds
+# Create dir for saving data (will be mounted to host, as the www folder for Home Assistant) 
+RUN mkdir /usr/src/app/data
+# Goto /usr/src/app
+RUN cd /usr/src/app
+# Run Python script
+CMD ["python3", "/usr/src/app/pullupCounter.py"]
