@@ -36,7 +36,9 @@ Special sounds are included for every 5 pullup up to 55 :)
 ## Demo  
 - Sorry for video being out of sync for left and right. It was challenging to sync both with variable frame rate from the right one. 
 
-https://github.com/jamtheim/pullupCounter/assets/46457468/0b523a41-f27b-4968-b1d3-fd44013b90c3
+https://github.com/jamtheim/pullupCounterPublic/assets/46457468/bdb78075-1f39-453b-b565-0bc53173c0ef
+
+
 
 
 
